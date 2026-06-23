@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Profile</title>
+</head>
+<body>
+
+
+<h1>My Profile</h1>
+
+<h3>Name</h3>
+<p>{{ profile[0] }}</p>
+
+<h3>Department</h3>
+<p>{{ profile[1] }}</p>
+
+<h3>CGPA</h3>
+<p>{{ profile[2] }}</p>
+
+<h3>Email</h3>
+<p>{{ profile[3] }}</p>
+
+<h3>Phone</h3>
+<p>{{ profile[4] }}</p> 
+<!-- display the phone number from the profile variable in a paragraph element -->
+
+<hr>
+
+<h2>Skills</h2>
+
+<ul>
+{% for skill in skills %}
+    <li>{{ skill[0] }}</li>
+{% endfor %}
+</ul>
+
+<hr>
+
+<h2>Interests</h2>
+
+<ul>
+{% for interest in interests %}
+<!-- iterate through the interests list and display each interest in a list item -->
+    <li>{{ interest[0] }}</li>
+{% endfor %}
+</ul>
+
+<a href="/">Back Home</a>
+
+</body>
+</html>

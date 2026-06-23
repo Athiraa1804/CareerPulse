@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Companies</title>
+</head>
+
+<body>
+
+<h1>Company Details</h1>
+
+<table border="1">
+
+<tr>
+    <th>ID</th>
+    <th>Company</th>
+    <th>Package</th>
+    <th>Location</th>
+    <th>Industry</th>
+    <th>Cutoff</th>
+    <th>Role</th>
+</tr>
+
+{% for company in companies %}
+
+<tr>
+
+<td>{{ company[0] }}</td>
+<td>{{ company[1] }}</td>
+<td>{{ company[2] }}</td>
+<td>{{ company[3] }}</td>
+<td>{{ company[4] }}</td>
+<td>{{ company[5] }}</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+</body>
+</html>
+
+<a href="/">Back Home</a>
+
+</body>
+</html>
