@@ -114,8 +114,6 @@ Apply for Opportunities
 ### Database
 
 * ShaktiDB
-* PostgreSQL
-* psycopg2
 
 ### Development Tools
 
@@ -123,6 +121,10 @@ Apply for Opportunities
 * Git
 * GitHub
 * Postman
+
+###Operating System
+
+Ubuntu 22.04 LTS
 
 ---
 
@@ -174,6 +176,8 @@ Stores:
 
 ## Current Achievements
 
+✔ ShaktiDB Installation
+
 ✔ User Authentication System
 
 ✔ Student Profile Management
@@ -191,18 +195,19 @@ Stores:
 ✔ GitHub Version Control
 
 ---
+## Planning to execute
 
+* Admin Portal
+* Resume upload
+* Application Tracking
+* Skill-Based Matching
+* 
 ## Future Enhancements
 
-* Resume Upload and Management
-* Application Tracking System
-* Placement Analytics Dashboard
 * Interview Scheduling
 * Email Notifications
-* Admin Portal
-* Placement Cell Dashboard
-* Advanced Skill-Based Matching
 * AI-Powered Career Recommendations
+* Placement Analytics Dashboard
 
 ---
 
@@ -219,3 +224,4 @@ Athira K V
 B.Tech Computer Science & Engineering
 
 TKM College of Engineering
+ShaktiDB Implemented Project
