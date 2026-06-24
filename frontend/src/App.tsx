@@ -65,7 +65,7 @@ function AppContent() {
         <div className="profile-section">
           <div className="avatar"></div>
 
-          <h2>{profile?.name || "Loading State..."}</h2>
+          <h2>{profile?.name || "Loading User..."}</h2>
           <p>{profile?.department || "...."}</p>
         </div>
 
