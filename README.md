@@ -186,7 +186,7 @@ Stores:
 
 ✔ Company Listing Module
 
-✔ Eligibility Checker
+✔ Eligibility Checker Based on CGPU cutoff
 
 ✔ Skills and Interests Management
 
@@ -201,7 +201,8 @@ Stores:
 * Resume upload
 * Application Tracking
 * Skill-Based Matching
-* 
+* Apply to the companies
+  
 ## Future Enhancements
 
 * Interview Scheduling
