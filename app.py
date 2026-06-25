@@ -183,22 +183,33 @@ def login():
 
         return jsonify({
             "success":True,
-            "student_id":user[0]
+            "student_id":user[0],
+            "role":user[1]
         })
 
     return jsonify({
-        "success":False
-    })
-
+        "success":False,
+        "message": "Invalid username or password."
+    }),401
 @app.route("/api/eligible-companies/<int:student_id>")
 def eligible_companies(student_id):
+
     profile = get_profile(student_id)
-    cgpa=float(profile[2])
-    department=profile[1]
+
+    # Student not found
+    if profile is None:
+        return jsonify([])
+
+    # CGPA not filled
+    if profile[2] is None:
+        return jsonify([])
+
+    cgpa = float(profile[2])
+    department = profile[1]
 
     conn = get_connection()
     cur = conn.cursor()
-    
+
     cur.execute("""
         SELECT
             c.company_name,
@@ -208,14 +219,14 @@ def eligible_companies(student_id):
             c.cutoff_cgpa,
             c.role
         FROM companies c
-        JOIN placement_drives pd ON c.company_id = pd.company_id
-        WHERE pd.min_cgpa <= (
-            SELECT cgpa FROM students WHERE student_id = %s
-        )
+        JOIN placement_drives pd
+        ON c.company_id = pd.company_id
+        WHERE pd.min_cgpa <= %s
         ORDER BY c.package DESC
-    """, (student_id,))
+    """, (cgpa,))
 
     rows = cur.fetchall()
+
     cur.close()
     conn.close()
 
@@ -288,6 +299,43 @@ def api_companies():
             "role": company[5]
         }
         for company in company_data
+    ])
+
+@app.route("/api/admin/companies")
+def admin_companies():
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT
+            company_id,
+            company_name,
+            role,
+            package,
+            location,
+            industry,
+            cutoff_cgpa
+        FROM companies
+        ORDER BY company_name
+    """)
+
+    rows = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return jsonify([
+        {
+            "company_id": row[0],
+            "company_name": row[1],
+            "role": row[2],
+            "package": row[3],
+            "location": row[4],
+            "industry": row[5],
+            "cutoff_cgpa": row[6]
+        }
+        for row in rows
     ])
 
 @app.route("/api/drives")
@@ -386,7 +434,102 @@ def api_offers():
         }
         for row in rows
     ])
+@app.route("/api/admin/company/<int:company_id>", methods=["DELETE"])
+def delete_company(company_id):
 
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        "DELETE FROM companies WHERE company_id = %s",
+        (company_id,)
+    )
+
+    conn.commit()
+
+    cur.close()
+    conn.close()
+
+    return jsonify({
+        "success": True,
+        "message": "Company deleted successfully"
+    })
+@app.route("/api/admin/company", methods=["POST"])
+def add_company():
+
+    data = request.json
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO companies
+        (
+            company_name,
+            role,
+            package,
+            location,
+            industry,
+            cutoff_cgpa
+        )
+        VALUES (%s,%s,%s,%s,%s,%s)
+    """,
+    (
+        data["company_name"],
+        data["role"],
+        data["package"],
+        data["location"],
+        data["industry"],
+        data["cutoff_cgpa"]
+    ))
+
+    conn.commit()
+
+    cur.close()
+    conn.close()
+
+    return jsonify({
+        "success": True,
+        "message": "Company added successfully"
+    })
+@app.route("/api/admin/company/<int:company_id>", methods=["PUT"])
+def update_company(company_id):
+
+    data = request.json
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        UPDATE companies
+        SET
+            company_name=%s,
+            role=%s,
+            package=%s,
+            location=%s,
+            industry=%s,
+            cutoff_cgpa=%s
+        WHERE company_id=%s
+    """,
+    (
+        data["company_name"],
+        data["role"],
+        data["package"],
+        data["location"],
+        data["industry"],
+        data["cutoff_cgpa"],
+        company_id
+    ))
+
+    conn.commit()
+
+    cur.close()
+    conn.close()
+
+    return jsonify({
+        "success": True,
+        "message": "Company updated successfully"
+    })
 @app.route("/api/reports")
 def api_reports():
     company_data = get_all_companies()
@@ -411,6 +554,7 @@ def api_reports():
         "avg_cgpa": avg_cgpa,
         "top_department": top_department
     })
+
 
 if __name__ == "__main__":
     app.run(debug=True)

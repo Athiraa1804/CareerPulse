@@ -34,17 +34,19 @@ def create_user(student_id, username, password):
     conn.close()
 
     return True
-def verify_user(username,password):
+def verify_user(username, password):
 
     conn = get_connection()
     cur = conn.cursor()
 
     cur.execute("""
-        SELECT student_id
+        SELECT
+            student_id,
+            role
         FROM users
         WHERE username=%s
         AND password=%s
-    """,(username,password))
+    """, (username, password))
 
     user = cur.fetchone()
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { data, Link } from "react-router-dom";
 import careergrowth from "../assets/careergrowth.jpg";
 
 function Login() {
@@ -25,15 +25,23 @@ function Login() {
 
     const data = await response.json();
 
-    if(data.success){
+    if (data.success) {
 
-      localStorage.setItem(
-        "student_id",
-        data.student_id
-      );
+    localStorage.setItem("student_id", data.student_id);
+    localStorage.setItem("role", data.role);
 
-      window.location.href="/";
+    if (data.role === "admin") {
+         window.location.href="/admin";
+    } else {
+         window.location.href="/";
     }
+
+} else {
+
+    alert(data.message || "Login Failed");
+
+}
+    
   };
 return (
   <div className="login-page">
