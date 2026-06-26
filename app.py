@@ -492,44 +492,42 @@ def add_company():
         "success": True,
         "message": "Company added successfully"
     })
-@app.route("/api/admin/company/<int:company_id>", methods=["PUT"])
-def update_company(company_id):
-
-    data = request.json
+@app.route("/api/admin/students")
+def get_all_students():
 
     conn = get_connection()
     cur = conn.cursor()
 
     cur.execute("""
-        UPDATE companies
-        SET
-            company_name=%s,
-            role=%s,
-            package=%s,
-            location=%s,
-            industry=%s,
-            cutoff_cgpa=%s
-        WHERE company_id=%s
-    """,
-    (
-        data["company_name"],
-        data["role"],
-        data["package"],
-        data["location"],
-        data["industry"],
-        data["cutoff_cgpa"],
-        company_id
-    ))
+        SELECT
+            student_id,
+            name,
+            department,
+            cgpa,
+            email,
+            phone,
+            graduation_year
+        FROM students
+        ORDER BY name
+    """)
 
-    conn.commit()
+    rows = cur.fetchall()
 
     cur.close()
     conn.close()
 
-    return jsonify({
-        "success": True,
-        "message": "Company updated successfully"
-    })
+    return jsonify([
+        {
+            "student_id": row[0],
+            "name": row[1],
+            "department": row[2],
+            "cgpa": row[3],
+            "email": row[4],
+            "phone": row[5],
+            "graduation_year": row[6]
+        }
+        for row in rows
+    ])
 @app.route("/api/reports")
 def api_reports():
     company_data = get_all_companies()
@@ -554,7 +552,293 @@ def api_reports():
         "avg_cgpa": avg_cgpa,
         "top_department": top_department
     })
+@app.route("/api/admin/reports")
+def admin_reports():
 
+    conn = get_connection()
+    cur = conn.cursor()
 
+    cur.execute("SELECT COUNT(*) FROM students")
+    total_students = cur.fetchone()[0]
+
+    cur.execute("SELECT COUNT(*) FROM companies")
+    total_companies = cur.fetchone()[0]
+
+    cur.execute("SELECT COUNT(*) FROM placement_drives")
+    total_drives = cur.fetchone()[0]
+
+    cur.execute("SELECT COUNT(*) FROM applications")
+    total_applications = cur.fetchone()[0]
+
+    cur.execute("SELECT COUNT(*) FROM offers")
+    total_offers = cur.fetchone()[0]
+
+    placement_rate = 0
+
+    if total_students > 0:
+        placement_rate = round(
+            (total_offers / total_students) * 100,
+            2
+        )
+
+    cur.close()
+    conn.close()
+
+    return jsonify({
+        "students": total_students,
+        "companies": total_companies,
+        "drives": total_drives,
+        "applications": total_applications,
+        "offers": total_offers,
+        "placement_rate": placement_rate
+    })
+@app.route("/api/admin/student/<int:student_id>", methods=["DELETE"])
+def delete_student(student_id):
+
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+
+        # Delete child records first
+        cur.execute(
+            "DELETE FROM student_skills WHERE student_id=%s",
+            (student_id,)
+        )
+
+        cur.execute(
+            "DELETE FROM applications WHERE student_id=%s",
+            (student_id,)
+        )
+
+        cur.execute(
+            "DELETE FROM offers WHERE student_id=%s",
+            (student_id,)
+        )
+
+        cur.execute(
+            "DELETE FROM interests WHERE student_id=%s",
+            (student_id,)
+        )
+
+        cur.execute(
+            "DELETE FROM resume WHERE student_id=%s",
+            (student_id,)
+        )
+
+        cur.execute(
+            "DELETE FROM users WHERE student_id=%s",
+            (student_id,)
+        )
+
+        # Finally delete student
+        cur.execute(
+            "DELETE FROM students WHERE student_id=%s",
+            (student_id,)
+        )
+
+        conn.commit()
+
+        cur.close()
+        conn.close()
+
+        return jsonify({
+            "success": True,
+            "message": "Student deleted successfully"
+        })
+
+    except Exception as e:
+        conn.rollback()
+        print("DELETE ERROR:", e)
+
+        return jsonify({
+            "success": False,
+            "message": str(e)
+        }), 500
+@app.route("/api/admin/student/<int:student_id>", methods=["PUT"])
+def update_student(student_id):
+
+    data = request.json
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        UPDATE students
+        SET
+            name=%s,
+            department=%s,
+            cgpa=%s,
+            email=%s,
+            phone=%s,
+            graduation_year=%s
+        WHERE student_id=%s
+    """,
+    (
+        data["name"],
+        data["department"],
+        data["cgpa"],
+        data["email"],
+        data["phone"],
+        data["graduation_year"],
+        student_id
+    ))
+
+    conn.commit()
+
+    cur.close()
+    conn.close()
+
+    return jsonify({
+        "success": True,
+        "message": "Student updated successfully"
+    })
+@app.route("/api/admin/drives")
+def get_admin_drives():
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT
+            pd.drive_id,
+            pd.company_id,
+            c.company_name,
+            pd.job_role,
+            pd.drive_date,
+            pd.min_cgpa
+        FROM placement_drives pd
+        JOIN companies c
+        ON pd.company_id = c.company_id
+        ORDER BY pd.drive_date DESC
+    """)
+
+    rows = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return jsonify([
+        {
+            "drive_id": row[0],
+            "company_id": row[1],
+            "company_name": row[2],
+            "job_role": row[3],
+            "drive_date": row[4],
+            "min_cgpa": row[5]
+        }
+        for row in rows
+    ])
+@app.route("/api/admin/drive", methods=["POST"])
+def add_drive():
+
+    data = request.json
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        INSERT INTO placement_drives
+        (
+            company_id,
+            drive_date,
+            min_cgpa,
+            job_role
+        )
+        VALUES (%s,%s,%s,%s)
+    """,
+    (
+        data["company_id"],
+        data["drive_date"],
+        data["min_cgpa"],
+        data["job_role"]
+    ))
+
+    conn.commit()
+
+    cur.close()
+    conn.close()
+
+    return jsonify({
+        "success": True,
+        "message": "Drive added successfully"
+    })
+@app.route("/api/admin/drive/<int:drive_id>", methods=["PUT"])
+def update_drive(drive_id):
+
+    data = request.json
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        UPDATE placement_drives
+        SET
+            company_id=%s,
+            drive_date=%s,
+            min_cgpa=%s,
+            job_role=%s
+        WHERE drive_id=%s
+    """,
+    (
+        data["company_id"],
+        data["drive_date"],
+        data["min_cgpa"],
+        data["job_role"],
+        drive_id
+    ))
+
+    conn.commit()
+
+    cur.close()
+    conn.close()
+
+    return jsonify({
+        "success": True,
+        "message": "Drive updated successfully"
+    })
+@app.route("/api/admin/company-list")
+def company_list():
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT company_id, company_name
+        FROM companies
+        ORDER BY company_name
+    """)
+
+    rows = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return jsonify([
+        {
+            "company_id": row[0],
+            "company_name": row[1]
+        }
+        for row in rows
+    ])
+@app.route("/api/admin/drive/<int:drive_id>", methods=["DELETE"])
+def delete_drive(drive_id):
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        "DELETE FROM placement_drives WHERE drive_id=%s",
+        (drive_id,)
+    )
+
+    conn.commit()
+
+    cur.close()
+    conn.close()
+
+    return jsonify({
+        "success": True,
+        "message": "Drive deleted successfully"
+    })
 if __name__ == "__main__":
     app.run(debug=True)

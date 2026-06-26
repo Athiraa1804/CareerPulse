@@ -7,7 +7,7 @@ import {
 
 import StudentLayout from "./layouts/studentlayout";
 import AdminLayout from "./layouts/adminlayout";
-
+import AdminReports from "./pages/adminreports";
 import Dashboard from "./pages/dashboard";
 import Profile from "./pages/profile";
 import Company from "./pages/company";
@@ -20,6 +20,8 @@ import Students from "./pages/students";
 import EditProfile from "./pages/editprofile";
 import Admin from "./pages/admin";
 import AdminCompanies from "./pages/admincompanies";
+import AdminStudents from "./pages/adminstudents";
+import AdminDrives from "./pages/admindrives";
 
 function App() {
 
@@ -52,11 +54,31 @@ function App() {
 
 </Route>
 
-<Route element={<AdminLayout />}>
+    <Route path="/admin" element={<AdminLayout />}>
 
-    <Route path="/admin" element={<Admin />} />
-    <Route path="/admin/companies" element={<AdminCompanies />} />
+    <Route index element={<Admin />} />
 
+    <Route
+        path="companies"
+        element={<AdminCompanies />}
+    />
+    <Route
+    path="students"
+    element={<AdminStudents />}
+/>
+
+    <Route
+        path="drives"
+        element={<AdminDrives />}
+    />
+    <Route
+    path="reports"
+    element={<AdminReports />}
+/>
+    <Route
+        path="reports"
+        element={<Reports />}
+    />
 </Route>
 
 </Routes>

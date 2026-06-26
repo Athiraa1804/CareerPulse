@@ -1,0 +1,24 @@
+.report-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
+    margin-top:30px;
+}
+
+.report-card{
+    background:white;
+    border-radius:20px;
+    padding:30px;
+    text-align:center;
+    box-shadow:0 4px 15px rgba(0,0,0,0.08);
+}
+
+.report-card h2{
+    color:#2f63e0;
+    font-size:40px;
+}
+
+.report-card p{
+    font-size:18px;
+    font-weight:600;
+}
