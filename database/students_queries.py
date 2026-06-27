@@ -14,6 +14,7 @@ def get_all_students():
         ORDER BY student_id
     """)
 
+    
     students = cur.fetchall()
 
     cur.close()

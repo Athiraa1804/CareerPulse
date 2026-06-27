@@ -229,6 +229,10 @@ a {
 
   margin-bottom:25px;
 }
+.menu-item,
+.menu-item * {
+    color: white !important;
+}
 .login-card{
   width:420px;
   padding:40px;

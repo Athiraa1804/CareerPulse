@@ -273,9 +273,14 @@ def api_profile(student_id):
 @app.route("/api/signup", methods=["POST"])
 def api_signup():
     return signup()
+
 @app.route("/api/students")
 def api_students():
+
     students = get_all_students()
+
+    print(type(students))
+
     return jsonify([
         {
             "student_id": student[0],
@@ -493,7 +498,7 @@ def add_company():
         "message": "Company added successfully"
     })
 @app.route("/api/admin/students")
-def get_all_students():
+def get_admin_students():
 
     conn = get_connection()
     cur = conn.cursor()

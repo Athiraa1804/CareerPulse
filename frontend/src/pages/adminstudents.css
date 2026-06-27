@@ -29,11 +29,11 @@
     margin-bottom:18px;
 }
 
-.student-card p{
+.company-card p{
     margin:8px 0;
 }
 
-.student-actions{
+.company-actions{
     display:flex;
     gap:12px;
     margin-top:20px;
