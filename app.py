@@ -439,6 +439,44 @@ def api_offers():
         }
         for row in rows
     ])
+@app.route("/api/admin/company/<int:company_id>", methods=["PUT"])
+def update_company(company_id):
+
+    data = request.json
+
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("""
+        UPDATE companies
+        SET
+            company_name=%s,
+            role=%s,
+            package=%s,
+            location=%s,
+            industry=%s,
+            cutoff_cgpa=%s
+        WHERE company_id=%s
+    """,
+    (
+        data["company_name"],
+        data["role"],
+        data["package"],
+        data["location"],
+        data["industry"],
+        data["cutoff_cgpa"],
+        company_id
+    ))
+
+    conn.commit()
+
+    cur.close()
+    conn.close()
+
+    return jsonify({
+        "success": True,
+        "message": "Company updated successfully"
+    })
 @app.route("/api/admin/company/<int:company_id>", methods=["DELETE"])
 def delete_company(company_id):
 
